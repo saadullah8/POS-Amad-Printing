@@ -23,8 +23,8 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
    public function redirectTo(){
-    if(Auth::user()->role==1){
-        return '/';
+    if(in_array(Auth::user()->role, [1, 2])){
+        return '/admin/dashboard/index';
     }
     return '/login';
    }
