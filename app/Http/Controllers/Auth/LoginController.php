@@ -22,12 +22,23 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-   public function redirectTo(){
-    if(in_array(Auth::user()->role, [1, 2])){
+    public function redirectTo()
+    {
         return '/admin/dashboard/index';
     }
-    return '/login';
-   }
+
+    protected function authenticated(Request $request, $user)
+    {
+        if (! in_array($user->role, [1, 2], true)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/login')->withErrors([
+                'email' => 'You are not authorized to access the admin panel.',
+            ]);
+        }
+    }
      
     public function __construct()
     {
@@ -36,10 +47,11 @@ class LoginController extends Controller
     }
     public function logout(Request $request)
     {
-        $redirect ='/login';
+        $redirect = '/login';
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect($redirect);
     }
 }

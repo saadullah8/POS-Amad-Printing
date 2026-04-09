@@ -16,11 +16,16 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-
-        if (Auth::check() && in_array(Auth::user()->role,[1,2])){
+        if (Auth::check() && in_array(Auth::user()->role, [1, 2], true)) {
             return $next($request);
         }
+
+        if (Auth::check()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         return redirect('/login');
-        
     }
 }

@@ -21,6 +21,15 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                if (! in_array(Auth::guard($guard)->user()->role, [1, 2], true)) {
+                    Auth::guard($guard)->logout();
+
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    break;
+                }
+
                 return redirect(RouteServiceProvider::HOME);
             }
         }
